@@ -28,7 +28,7 @@
  */
 var Tools = {};
 if (typeof window === 'undefined') {
-    module.exports = Tools;
+    module.exports.Tools = Tools;
 }
 
 (function (Tools) {
