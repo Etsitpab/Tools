@@ -868,7 +868,7 @@ if (typeof window === 'undefined') {
       *
       * @return {String} name
       */
-     Tools.stringToDownload = function(str, name) {
+     Tools.download = function(str, name) {
          var textFileAsBlob = new Blob([str], {type: 'text/plain'});
          var downloadLink = document.createElement("a");
          downloadLink.download = name || "file.txt";
