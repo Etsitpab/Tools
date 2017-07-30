@@ -873,7 +873,9 @@ if (typeof window === 'undefined') {
          var downloadLink = document.createElement("a");
          downloadLink.download = name || "file.txt";
          downloadLink.href = URL.createObjectURL(textFileAsBlob);
+         document.body.appendChild(downloadLink);
          downloadLink.click();
+         document.body.removeChild(downloadLink);
      };
 
 
