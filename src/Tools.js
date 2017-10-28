@@ -546,7 +546,7 @@ if (typeof window === 'undefined') {
       *
       * @todo rename it 'sequence'? use optional argument for negative indices? allow empty selection?
       */
-     Tools.checkColon = function (c, length) {
+     Tools.checkColon = function (c, length, start = (length === undefined ? -Infinity : 0)) {
 
          // Format as a vector
          if (this.isArrayLike(c) && c.length === 1 && this.isArrayLike(c[0])) {
@@ -596,7 +596,7 @@ if (typeof window === 'undefined') {
          if (!this.isArrayOfIntegers([a, b])) {
              throw new Error('checkColon: first and last elements must be integers');
          }
-         if (!this.isArrayOfIntegers([a, b], 0, length - 1)) {
+         if (!this.isArrayOfIntegers([a, b], start, length - 1)) {
              throw new Error('checkColon: first or last elements out of bounds');
          }
 
