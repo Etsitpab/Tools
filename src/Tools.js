@@ -860,6 +860,87 @@ if (typeof window === 'undefined') {
 
       })();
 
+      Tools.decodeB64 = function (input) {
+          var mime = input.match(/(data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64[\.\,]*)/);
+          if (mime) {
+              input = input.substring(mime[1].length);
+          }
+
+          // Remove all non base64 characters
+          // input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+          var refStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+          var padding = input.substring(input.length - 2);
+          if (padding === "==") {
+              padding = 2;
+          } else if (padding[1] === "=") {
+              padding = 1;
+          } else {
+              padding = 0;
+          }
+          var bytes = Math.floor((input.length / 4) * 3) - padding;
+          var output = new Uint8Array(bytes), ref = new Uint8Array(256);
+          for (var i = 0; i < 64; i++) {
+              ref[refStr.charCodeAt(i)] = i;
+          }
+          for (var i = 0, ie = Math.floor(bytes / 3) * 3, j = 0; i < ie; i += 3) {
+              var c1 = ref[input.charCodeAt(j++)],
+              c2 = ref[input.charCodeAt(j++)],
+              c3 = ref[input.charCodeAt(j++)],
+              c4 = ref[input.charCodeAt(j++)];
+              output[i]     = ((c1     ) << 2) | (c2 >> 4);
+              output[i + 1] = ((c2 & 15) << 4) | (c3 >> 2);
+              output[i + 2] = ((c3 &  3) << 6) | (c4);
+          }
+          if (padding) {
+              c1 = ref[input.charCodeAt(j++)];
+              c2 = ref[input.charCodeAt(j++)];
+              if (padding === 1) {
+                  c3 = ref[input.charCodeAt(j)];
+                  output[ie]     = ((c1     ) << 2) | (c2 >> 4);
+                  output[ie + 1] = ((c2 & 15) << 4) | (c3 >> 2);
+              } else if (padding === 2) {
+                  output[ie]     = ((c1     ) << 2) | (c2 >> 4);
+              }
+          }
+          return output;
+      };
+
+      Tools.encodeB64 = function (input, mime) {
+          if (input.constructor === DataView) {
+              input = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+          } else if (input.constructor === ArrayBuffer) {
+              input = new Uint8Array(input);
+          } else if (input.constructor !== Uint8Array && input.constructor !== Uint8ClampedArray) {
+              throw new Error(input);
+          }
+
+          var bytes = input.length, length = Math.ceil(bytes / 3) * 4;
+          var output = "";
+          if (mime) {
+              output += "data:" + mime + ";base64,";
+          }
+          var ref = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".split("");
+          for (var i = 0, ie = Math.floor(bytes / 3) * 3, j = 0; i < ie; i += 3) {
+              var b1 = input[i], b2 = input[i + 1], b3 = input[i + 2];
+              output += ref[                   (b1 >> 2)];
+              output += ref[((b1 &  3) << 4) | (b2 >> 4)];
+              output += ref[((b2 & 15) << 2) | (b3 >> 6)];
+              output += ref[((b3 & 63)     )            ];
+          }
+          if (bytes - ie === 1) {
+              var b1 = input[ie];
+              output += ref[b1 >> 2];
+              output += ref[(b1 &  3) << 4];
+              output += "==";
+          } else if (bytes - ie === 2) {
+              var b1 = input[ie], b2 = input[i + 1];
+              output += ref[                   (b1 >> 2)];
+              output += ref[((b1 &  3) << 4) | (b2 >> 4)];
+              output += ref[((b2 & 15) << 2)            ];
+              output += "=";
+          }
+          return output;
+      };
 
      /** Transform a string to a file and download it.
       * *It does not seem to work with all browsers.*
