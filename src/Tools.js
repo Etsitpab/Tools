@@ -1006,5 +1006,32 @@ if (typeof window === 'undefined') {
 
       }());
 
+      /** Read a file, optionnally partially.
+       * @param {File} file
+       *  Fileto to read
+       * @param {string} [as="ArrayBuffer"]
+       *  Choose the kind of data that has to be returned
+       * @param {integer} [start=0]
+       *  Starting point for partial read.
+       * @param {integer} [size=0]
+       *  the number of byte to read.
+       * @param {Function} [callback=undefined]
+       *  Function to call once file is read.
+       * @return {Promise}
+       * @async
+       */
+      Tools.readFile = async function(file, as = "ArrayBuffer", start = 0, size = file.size, callback) {
+          return new Promise((resolve, reject) => {
+              let reader = new FileReader();
+              var blob = file.slice(start, start + size);
+              reader.onload = (evt) => {
+                  if (callback instanceof Function) {
+                      callback(evt);
+                  }
+                  resolve(evt);
+              }
+              reader["readAs" + as](blob);
+          });
+      }
 
  })(Tools);
