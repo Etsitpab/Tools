@@ -950,10 +950,12 @@ if (typeof window === 'undefined') {
       * @return {String} name
       */
      Tools.download = function(str, name) {
-         var textFileAsBlob = new Blob([str], {type: 'text/plain'});
+         var textFileAsBlob = new Blob([str], {
+             "type": "text/plain;"
+         });
          var downloadLink = document.createElement("a");
          downloadLink.download = name || "file.txt";
-         downloadLink.href = URL.createObjectURL(textFileAsBlob);
+         downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
          document.body.appendChild(downloadLink);
          downloadLink.click();
          document.body.removeChild(downloadLink);
