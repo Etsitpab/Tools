@@ -1,4 +1,5 @@
 node_modules/
-.sonarlint
 coverage/
-third/
+docs/
+.sonarlint
+*.tgz
